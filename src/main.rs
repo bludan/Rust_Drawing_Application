@@ -1,0 +1,53 @@
+use std::i32;
+use eframe::egui;
+
+struct MyApp {
+    pixels: Vec<(f32, f32)>, // Stores the positions of clicked pixels
+    size: f32,
+    shape: ShapeType,
+}
+enum ShapeType{
+    Circle,
+    Rectangle,
+}
+impl Default for MyApp {
+    fn default() -> Self {
+        Self { pixels: Vec::new(), size: 1.0, shape: ShapeType::Circle }
+
+    }
+}
+
+impl eframe::App for MyApp {
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        egui::CentralPanel::default().show(ctx, |ui| {
+            if ui.input(|input| input.pointer.primary_clicked()) {
+                if let Some(pos) = ui.input(|input| input.pointer.interact_pos()) {
+                    self.pixels.push((pos.x, pos.y));
+                    println!("Clicked at: ({}, {})", pos.x, pos.y);
+                }
+            }
+
+           if ui.button("increase size of brush").clicked()
+            {
+                self.size = self.size + 1.0;
+            }
+            if ui.button("decrease size of brush").clicked()
+            {
+                self.size = self.size - 1.0;
+            }
+            let painter = ui.painter();
+            for &(x, y) in &self.pixels {
+                painter.circle_filled(egui::Pos2::new(x, y), self.size, egui::Color32::RED);
+            }
+        });
+    }
+}
+
+fn main() {
+    let options = eframe::NativeOptions::default();
+    eframe::run_native(
+        "Simple egui Pixel Drawer",
+        options,
+        Box::new(|_cc| Ok(Box::<MyApp>::default())),
+    );
+}
