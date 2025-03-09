@@ -1,5 +1,4 @@
 use eframe::egui;
-use std::i32;
 
 struct MyApp {
     pixels: Vec<(f32, f32)>, // Stores the positions of clicked pixels
