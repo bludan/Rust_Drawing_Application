@@ -6,6 +6,7 @@ struct MyApp {
     size: f32,
     shape: ShapeType,
     prev_mouse_pos: Option<egui::Pos2>,
+    drawing_enabled: bool,
 }
 #[derive(PartialEq)]
 enum ShapeType {
@@ -19,14 +20,31 @@ impl Default for MyApp {
             size: 1.0,
             shape: ShapeType::Circle,
             prev_mouse_pos: None,
+            drawing_enabled: false,
         }
     }
 }
 
 impl eframe::App for MyApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+       egui::SidePanel::left("left_panel").max_width(100.0).show(ctx, |ui|{
+        ui.heading("Control Panel");
+           if ui.add_sized([50.0, 40.0],egui::Button::new("+")).clicked() {
+               self.size = self.size + 1.0;
+           }
+           if ui.add_sized([50.0, 40.0],egui::Button::new("-")).clicked() {
+               self.size = self.size - 1.0;
+           }
+           if ui.add_sized([80.0, 40.0],egui::Button::new("rectangle")).clicked() {
+               self.shape = ShapeType::Rectangle;
+           }
+           if ui.add_sized([80.0, 40.0],egui::Button::new("circle")).clicked() {
+               self.shape = ShapeType::Circle;
+           }
+        });
         egui::CentralPanel::default().show(ctx, |ui| {
-            if ui.input(|input| input.pointer.primary_down()) {
+            self.drawing_enabled = true;
+            if ui.input(|input| input.pointer.primary_down() && self.drawing_enabled == true) {
                 if let Some(pos) = ui.input(|input| input.pointer.interact_pos()) {
                     if let Some(prev_pos) = self.prev_mouse_pos {
                         let distance = prev_pos.distance(pos);
@@ -46,18 +64,6 @@ impl eframe::App for MyApp {
                 }
             } else {
                 self.prev_mouse_pos = None;
-            }
-            if ui.button("increase size of brush").clicked() {
-                self.size = self.size + 1.0;
-            }
-            if ui.button("decrease size of brush").clicked() {
-                self.size = self.size - 1.0;
-            }
-            if ui.button("rectangle").clicked() {
-                self.shape = ShapeType::Rectangle;
-            }
-            if ui.button("circle").clicked() {
-                self.shape = ShapeType::Circle;
             }
             let painter = ui.painter();
             for &(x, y) in &self.pixels {
