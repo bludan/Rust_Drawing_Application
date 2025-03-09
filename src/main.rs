@@ -36,8 +36,9 @@ impl eframe::App for MyApp {
                 self.size = self.size - 1.0;
             }
             let painter = ui.painter();
-            for &(x, y) in &self.pixels {
-                painter.circle_filled(egui::Pos2::new(x, y), self.size, egui::Color32::RED);
+                for &(x, y) in &self.pixels  {
+                    painter.circle_filled(egui::Pos2::new(x, y), self.size, egui::Color32::RED);
+
             }
         });
     }
